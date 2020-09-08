@@ -1,6 +1,7 @@
 const AppError = require('../errors/AppError');
 const Transaction = require('../models/TransactionModel');
 const UpdateTransactionService = require('../services/UpdateTransactionService');
+const CreateTransactionService = require('../services/CreateTransactionService');
 
 class TransactionController {
   async create(request, response) {
@@ -14,9 +15,9 @@ class TransactionController {
       type,
     });
 
-    return response.json(updatedTransaction);
+    return response.json(transaction);
   }
-  
+
   async index(request, response) {
     const { period } = request.query;
 

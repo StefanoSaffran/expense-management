@@ -26,7 +26,11 @@ class TransactionController {
     const transactions = await Transaction.find({
       yearMonth: period
     })
-    return response.json(transactions);
+
+    return response.json({
+      length: transactions.length,
+      transactions
+    });
   }
 
   async update(request, response) {
@@ -43,6 +47,18 @@ class TransactionController {
     });
 
     return response.json(updatedTransaction);
+  }
+
+  async delete(request, response) {
+    const { id } = request.params;
+
+    const transactionExists = await Transaction.findById(id)
+
+    if (!transactionExists) throw new AppError('Transaction not found.');
+
+    await Transaction.findByIdAndRemove(id);
+
+    return response.status(204).send();
   }
 }
 

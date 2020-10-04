@@ -18,11 +18,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+function logRequest(request, response, next) {
+  const { method, url } = request;
+
+  const logLabel = `[${method.toUpperCase()}] ${url}`
+
+  console.time(logLabel)
+  
+  next();
+  
+  console.timeEnd(logLabel)
+}
+
 /**
  * Vinculando o React ao app
  */
 app.use(express.static(path.join(__dirname, 'client/build')));
-
+app.use(logRequest);
 /**
  * Rota raiz
  */
@@ -89,7 +101,7 @@ connection.once('open', () => {
    * Definição de porta e
    * inicialização do app
    */
-  const APP_PORT = process.env.PORT || 3001;
+  const APP_PORT = process.env.PORT || 3333;
   app.listen(APP_PORT, () => {
     console.log(`Servidor iniciado na porta ${APP_PORT}`);
   });

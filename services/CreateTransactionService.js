@@ -1,23 +1,21 @@
 const TransactionModel = require("../models/TransactionModel");
-const AppError = require("../errors/AppError");
+const dateHelper = require('../utils/dateHelper');
 
 class CreateTransactionService {
-  async execute({ description, category, value, yearMonthDay, type }) {
-    if (!description || !category || !value || !yearMonthDay || !type)
-      throw new AppError('All fields are required');
-
-    const date = yearMonthDay.split('-');
+  async execute({ description, category, value, year, month, day, type }) {
+      const period = dateHelper.createPeriodFrom(year, month);
+      const date = dateHelper.createDateFrom(year, month, day);
 
     const transaction = await TransactionModel.create({
         description, 
         category, 
         value, 
-        yearMonthDay, 
         type,
-        year: date[0],
-        month: date[1],
-        day: date[2],
-        yearMonth: `${date[0]}-${date[1]}`,
+        day,
+        month,
+        year,
+        yearMonth: period,
+        yearMonthDay: date, 
       });
 
     return transaction;

@@ -1,16 +1,16 @@
 const TransactionModel = require("../models/TransactionModel");
-const AppError = require("../errors/AppError");
+const AppError = require('../errors/AppError');
+const dateHelper = require('../utils/dateHelper');
+
 
 class UpdateTransactionService {
-  async execute({ id, description, category, value, yearMonthDay, type }) {
+  async execute({ id, description, category, value, year, month, day, type }) {
     const transactionExists = await TransactionModel.findById(id);
 
     if (!transactionExists) throw new AppError('Transaction not found.');
 
-    if (!description || !category || !value || !yearMonthDay || !type)
-      throw new AppError('All fields are required');
-
-    const date = yearMonthDay.split('-');
+    const period = dateHelper.createPeriodFrom(year, month);
+    const date = dateHelper.createDateFrom(year, month, day);
 
     const updatedTransaction = await TransactionModel.findByIdAndUpdate(
       id,
@@ -18,12 +18,12 @@ class UpdateTransactionService {
         description, 
         category, 
         value, 
-        yearMonthDay, 
         type,
-        year: date[0],
-        month: date[1],
-        day: date[2],
-        yearMonth: `${date[0]}-${date[1]}`,
+        day,
+        month,
+        year,
+        yearMonth: period,
+        yearMonthDay: date, 
       },
       { new: true }
     )

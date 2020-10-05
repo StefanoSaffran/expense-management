@@ -2,16 +2,22 @@ const AppError = require('../errors/AppError');
 const Transaction = require('../models/TransactionModel');
 const UpdateTransactionService = require('../services/UpdateTransactionService');
 const CreateTransactionService = require('../services/CreateTransactionService');
+const dateHelper = require('../utils/dateHelper');
+const validateTransactionData = require('../utils/validate');
 
 class TransactionController {
   async create(request, response) {
-    const { description, category, value, yearMonthDay, type } = request.body;
+    await validateTransactionData(request.body);
+
+    const { description, category, value, year, month, day, type } = request.body;
 
     const transaction = await CreateTransactionService.execute({
       description, 
       category, 
       value, 
-      yearMonthDay, 
+      year,
+      month,
+      day,
       type,
     });
 
@@ -23,9 +29,11 @@ class TransactionController {
 
     if (!period) throw new AppError('É necessário informar o parâmetro "period", cujo valor deve estar no formato yyyy-mm');
 
+    dateHelper.validatePeriod(period);
+
     const transactions = await Transaction.find({
       yearMonth: period
-    })
+    });
 
     return response.json({
       length: transactions.length,
@@ -34,15 +42,19 @@ class TransactionController {
   }
 
   async update(request, response) {
+    await validateTransactionData(request.body);
+
     const { id } = request.params;
-    const { description, category, value, yearMonthDay, type } = request.body;
+    const { description, category, value, year, month, day, type } = request.body;
 
     const updatedTransaction = await UpdateTransactionService.execute({
       id,
       description, 
       category, 
       value, 
-      yearMonthDay, 
+      year,
+      month,
+      day,
       type,
     });
 
